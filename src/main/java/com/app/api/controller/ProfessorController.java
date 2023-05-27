@@ -1,5 +1,7 @@
 package com.app.api.controller;
 
+import com.app.api.aluno.AlunoRepository;
+import com.app.api.aluno.DadosRetornoAluno;
 import com.app.api.professor.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,32 +16,41 @@ import java.util.List;
 public class ProfessorController {
 
     @Autowired
-    private ProfessorRepository repository;
+    private ProfessorRepository professorRepository;
+    @Autowired
+    private AlunoRepository alunoRepository;
+
 
     @GetMapping()
     public Page<DadosRetornoProfessor> listarTodosProfessores(Pageable page){
-        return repository.findAll(page).map(DadosRetornoProfessor::new);
+        return professorRepository.findAll(page).map(DadosRetornoProfessor::new);
     }
 
     @GetMapping("/login")
     public DadosProfessor loginProfessor(@RequestBody DadosLoginProfessor dados){
-        DadosProfessor login;
-        List<Professor> retorno =repository.findByEmail(dados.email());
+
+        List<Professor> retorno = professorRepository.findByEmail(dados.email());
         if(retorno.size() == 0){
-            return login = new DadosLoginProfessor("err", null);
+            return new DadosLoginProfessor("err", null);
         }else {
             if(retorno.get(0).getSenha().equals(dados.senha())){
-                return login = new DadosRetornoProfessor(retorno.get(0));
+                return new DadosRetornoProfessor(retorno.get(0));
             } else {
-                return login = new DadosLoginProfessor(dados.email(), "err");
+                return new DadosLoginProfessor(dados.email(), "err");
             }
         }
     }
+
+    @GetMapping("/meus-alunos/professor={id}")
+    public Page<DadosRetornoAluno> listarMeusAlunos(Pageable page,@PathVariable Long id){
+        return alunoRepository.findByProfessor(page, id).map(DadosRetornoAluno::new);
+    }
+
     @PostMapping
     @Transactional
     public DadosRetornoProfessor cadastroProfessor(@RequestBody DadosCadastroProfessor dados){
         Professor professor = new Professor(dados);
-        repository.save(professor);
+        professorRepository.save(professor);
         return new DadosRetornoProfessor(professor);
     }
 
@@ -47,6 +58,6 @@ public class ProfessorController {
     @DeleteMapping("/id={id}")
     @Transactional
     public void deletar(@PathVariable Long id){
-        repository.deleteById(id);
+        professorRepository.deleteById(id);
     }
 }

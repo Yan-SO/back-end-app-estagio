@@ -15,11 +15,18 @@ public class Aluno {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String ra;
+    private String RA;
     private String nome;
     private String senha;
     private String email;
     private Long professor;
 
 
+    public Aluno(DadosCadastroAluno dados, Long idProfessor) {
+        this.RA = dados.RA();
+        this.nome = dados.nome();
+        this.senha = dados.senha();
+        this.email = dados.email();
+        this.professor = idProfessor;
+    }
 }
