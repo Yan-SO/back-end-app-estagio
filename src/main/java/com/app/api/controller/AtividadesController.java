@@ -1,31 +1,56 @@
 package com.app.api.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.app.api.atividades.atividade.*;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
+
 
 @RestController
 @RequestMapping("/atividades")
 public class AtividadesController {
-    /**
-     * é o dia da semana que vai ser criada uma nova semana de atividades
-     */
-    private Integer newWeek=2;
 
+    @Autowired
+    private AtividadeRepository atividadeRepository;
 
-    /**
-     * vai verificar se é uma nova semana de atividades
-     * e se é a primeira vez usando app.
-     * deve ser usado sempre que iniciar o app.
-     */
-    @PostMapping("/nova-semana")
-    public void novaSemana(){
-        var diaAtual = new GregorianCalendar().get(Calendar.DAY_OF_WEEK);
-        if(newWeek.equals(diaAtual)){
-
-        }
+    @GetMapping
+    public Page<DadosRetornoAtividade> listarTodas(Pageable page){
+        return atividadeRepository.findAll(page).map(DadosRetornoAtividade::new);
     }
+
+    @GetMapping("/professor")
+    public Page<DadosRetornoAtividade> listarPorProfessor(Pageable page, @RequestBody Long id){
+        return atividadeRepository.findByProfessor(page, id).map(DadosRetornoAtividade::new);
+    }
+
+
+    @PostMapping
+    @Transactional
+    public DadosRetornoAtividade cadastrarAtividade(@RequestBody @Valid DadosCadastroAtividades dados){
+        Date data = new Date();
+        Atividade atividade =new Atividade(dados, data);
+        atividadeRepository.save(atividade);
+        return new DadosRetornoAtividade(atividade);
+    }
+
+    @PutMapping
+    @Transactional
+    public DadosRetornoAtividade atualizarAtividades(@RequestBody @Valid DadosAtualizarAtividades dados){
+        var atividade = atividadeRepository.getReferenceById(dados.id());
+        atividade.atualizar(dados);
+        return new DadosRetornoAtividade(atividade);
+    }
+
+    @DeleteMapping("/id={id}")
+    @Transactional
+    public void deletarAtividade(@PathVariable Long id){
+        atividadeRepository.deleteById(id);
+    }
+
+
 }
