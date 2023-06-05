@@ -24,7 +24,7 @@ public class AlunoController {
         return alunoRepository.findAll(page).map(DadosRetornoAluno::new);
     }
 
-    @GetMapping("/login")
+    @PutMapping("/login")
     public DadosAluno loginAluno(@RequestBody DadosLoginAluno dados){
         List<Aluno> retorno = alunoRepository.findByRA(dados.RA());
         if(retorno.size() == 0){
@@ -42,24 +42,20 @@ public class AlunoController {
     @PostMapping
     @Transactional
     public DadosRetornoAluno cadastrarAluno(@RequestBody DadosCadastroAluno dados){
-        String emailProfessor = null;
         String RA = null;
         String email = null;
 
-        List<Professor> prof = professorRepository.findByEmail(dados.emailProfessor());
         List<Aluno> alunoRA = alunoRepository.findByRA(dados.RA());
         List<Aluno> alunoEmail = alunoRepository.findByEmail(dados.email());
 
-        if(prof.isEmpty()) emailProfessor = "err";
         if (!alunoRA.isEmpty()) RA = "err";
         if(!alunoEmail.isEmpty()) email = "err";
 
-
-        var dadosErro = new DadosRetornoAluno(null, RA, null, null,email,emailProfessor);
+        var dadosErro = new DadosRetornoAluno(null, RA, null, null,email);
 
         if (dadosErro.temErro()) return dadosErro;
         else {
-            Aluno alunoCadastrado = new Aluno(dados, prof.get(0).getId());
+            Aluno alunoCadastrado = new Aluno(dados);
             alunoRepository.save(alunoCadastrado);
             return new DadosRetornoAluno(alunoCadastrado);
         }

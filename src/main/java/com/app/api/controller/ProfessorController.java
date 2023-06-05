@@ -1,8 +1,11 @@
 package com.app.api.controller;
 
+import com.app.api.aluno.Aluno;
 import com.app.api.aluno.AlunoRepository;
 import com.app.api.aluno.DadosRetornoAluno;
 import com.app.api.professor.*;
+import com.app.api.relacionamentos.AlunoProfessorRepository;
+import com.app.api.relacionamentos.AlunosProfessores;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/professor")
@@ -17,8 +21,7 @@ public class ProfessorController {
 
     @Autowired
     private ProfessorRepository professorRepository;
-    @Autowired
-    private AlunoRepository alunoRepository;
+
 
 
     @GetMapping()
@@ -26,10 +29,10 @@ public class ProfessorController {
         return professorRepository.findAll(page).map(DadosRetornoProfessor::new);
     }
 
-    @GetMapping("/login")
+    @PutMapping("/login")
     public DadosProfessor loginProfessor(@RequestBody DadosLoginProfessor dados){
 
-        List<Professor> retorno = professorRepository.findByEmail(dados.email());
+        var retorno = professorRepository.findByEmail(dados.email());
         if(retorno.size() == 0){
             return new DadosLoginProfessor("err", null);
         }else {
@@ -41,10 +44,7 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/meus-alunos/professor={id}")
-    public Page<DadosRetornoAluno> listarMeusAlunos(Pageable page,@PathVariable Long id){
-        return alunoRepository.findByProfessor(page, id).map(DadosRetornoAluno::new);
-    }
+
 
     @PostMapping
     @Transactional

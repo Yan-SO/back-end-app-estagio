@@ -19,14 +19,12 @@ public class Aluno {
     private String nome;
     private String senha;
     private String email;
-    private Long professor;
 
 
-    public Aluno(DadosCadastroAluno dados, Long idProfessor) {
+    public Aluno(DadosCadastroAluno dados) {
         this.RA = dados.RA();
         this.nome = dados.nome();
         this.senha = dados.senha();
         this.email = dados.email();
-        this.professor = idProfessor;
     }
 }

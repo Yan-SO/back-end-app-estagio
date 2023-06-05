@@ -1,8 +1,8 @@
 package com.app.api.aluno;
 
-public record DadosRetornoAluno(Long id,String RA, String nome, String senha, String email, String professor) implements DadosAluno {
+public record DadosRetornoAluno(Long id,String RA, String nome, String senha, String email) implements DadosAluno {
     public DadosRetornoAluno(Aluno aluno)  {
-        this(aluno.getId(), aluno.getRA(), aluno.getNome(), aluno.getSenha(), aluno.getEmail(), aluno.getProfessor().toString());
+        this(aluno.getId(), aluno.getRA(), aluno.getNome(), aluno.getSenha(), aluno.getEmail());
     }
 
     public boolean temErro() {
@@ -10,7 +10,6 @@ public record DadosRetornoAluno(Long id,String RA, String nome, String senha, St
         if (nome != null) return true;
         if (senha != null) return true;
         if (email != null) return true;
-        if (professor != null) return true;
 
         return false;
     }

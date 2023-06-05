@@ -1,28 +1,29 @@
-package com.app.api.atividades.respondidas;
+package com.app.api.relacionamentos;
 
+import com.app.api.aluno.Aluno;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-@Table(name = "atividades_alunos")
-@Entity(name = "atividadesAlunos")
+@Table(name = "professores_alunos")
+@Entity(name = "AlunosProfessores")
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @EqualsAndHashCode(of = "id")
-public class AtividadeRespondida {
+public class AlunosProfessores {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean alunoResposta;
-    private Date quando;
-
     private Long aluno;
     private Long professor;
 
+
+    public AlunosProfessores(Long profId, Long alunoId) {
+        this.aluno = alunoId;
+        this.professor = profId;
+    }
 }
