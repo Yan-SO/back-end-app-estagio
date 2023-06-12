@@ -1,19 +1,11 @@
 package com.app.api.controller;
 
-import com.app.api.aluno.Aluno;
-import com.app.api.aluno.AlunoRepository;
-import com.app.api.aluno.DadosRetornoAluno;
 import com.app.api.professor.*;
-import com.app.api.relacionamentos.AlunoProfessorRepository;
-import com.app.api.relacionamentos.AlunosProfessores;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/professor")

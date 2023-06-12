@@ -1,4 +1,4 @@
-package com.app.api.atividades.atividade;
+package com.app.api.atividade;
 
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package com.app.api.controller;
 
-import com.app.api.atividades.atividade.*;
+import com.app.api.atividade.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,8 @@ public class AtividadesController {
         return atividadeRepository.findAll(page).map(DadosRetornoAtividade::new);
     }
 
-    @GetMapping("/professor")
-    public Page<DadosRetornoAtividade> listarPorProfessor(Pageable page, @RequestBody Long id){
+    @GetMapping("/professor={id}")
+    public Page<DadosRetornoAtividade> listarPorProfessor(Pageable page, @PathVariable Long id){
         return atividadeRepository.findByProfessor(page, id).map(DadosRetornoAtividade::new);
     }
 

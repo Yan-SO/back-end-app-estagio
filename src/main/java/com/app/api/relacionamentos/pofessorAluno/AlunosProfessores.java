@@ -1,4 +1,4 @@
-package com.app.api.relacionamentos;
+package com.app.api.relacionamentos.pofessorAluno;
 
 import com.app.api.aluno.Aluno;
 import jakarta.persistence.*;
