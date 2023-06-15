@@ -25,4 +25,11 @@ public class AtividadeAlunos {
     private Long aluno;
     private Long atividade;
 
+    public AtividadeAlunos(DadosCadastroAtiviRespon dados, Date data){
+        this.quando=data;
+        this.aluno = dados.aluno();
+        this.atividade = dados.atividade();
+        this.alunoResposta = dados.alunoResposta();
+    }
+
 }

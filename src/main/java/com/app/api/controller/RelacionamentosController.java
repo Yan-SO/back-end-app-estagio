@@ -6,10 +6,12 @@ import com.app.api.aluno.DadosRetornoAluno;
 import com.app.api.atividade.Atividade;
 import com.app.api.atividade.AtividadeRepository;
 import com.app.api.atividade.DadosRetornoAtividade;
+import com.app.api.atividade.DadosRetornoAtividadePAluno;
 import com.app.api.professor.Professor;
 import com.app.api.professor.ProfessorRepository;
 import com.app.api.relacionamentos.alunoAtividade.AtividadeAlunos;
 import com.app.api.relacionamentos.alunoAtividade.AtividadesRespondidasRepository;
+import com.app.api.relacionamentos.alunoAtividade.DadosCadastroAtiviRespon;
 import com.app.api.relacionamentos.alunoAtividade.DadosRetornorAtividadesRespondidas;
 import com.app.api.relacionamentos.pofessorAluno.AlunoProfessorRepository;
 import com.app.api.relacionamentos.pofessorAluno.AlunosProfessores;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,8 +47,8 @@ public class RelacionamentosController {
     @Autowired
     private AtividadesRespondidasRepository respondidasRepository;
 
-    @GetMapping("atividades-alunos={id}")
-    public Page<DadosRetornoAtividade> listaAtividadesAluno(@PathVariable Long id, Pageable page){
+    @GetMapping("/atividades-alunos={id}")
+    public Page<DadosRetornoAtividadePAluno> listaAtividadesAluno(@PathVariable Long id, Pageable page){
         List<AlunosProfessores> lista =alunoProfessorRepository.findByAluno(id);
 
         List<Long> professoresIds = new ArrayList<>();
@@ -54,10 +57,16 @@ public class RelacionamentosController {
             professoresIds.add(professorId);
         }
         List<Atividade> atividades = atividadeRepository.findAllByProfessorIn(professoresIds);
-        return new PageImpl<>(atividades,page,atividades.size()).map(DadosRetornoAtividade::new);
+
+        List<DadosRetornoAtividadePAluno> atividadesComProf = new ArrayList<>();
+        for (Atividade atividade: atividades) {
+            String nome= professorRepository.findById(atividade.getProfessor()).get().getNome();
+            atividadesComProf.add(new DadosRetornoAtividadePAluno(atividade,nome));
+        }
+        return new PageImpl<>(atividadesComProf,page,atividadesComProf.size());
     }
 
-    @GetMapping("atividades-alunos/feitas={id}")
+    @GetMapping("/atividades-alunos/feitas={id}")
     public Page<DadosRetornorAtividadesRespondidas> listaAtividadesAlunoFeita(@PathVariable Long id, Pageable page){
         List<AtividadeAlunos> atividadeRespondidas = respondidasRepository.findByAluno(id);
 
@@ -71,12 +80,12 @@ public class RelacionamentosController {
             String nome = professorRepository.findById(atividade.get().getProfessor()).get().getNome();
 
             dadosRetorno.add(new DadosRetornorAtividadesRespondidas
-                    (atividadeAlunos.isAlunoResposta(),atividadeAlunos.getQuando(),titulo,nome));
+                    (atividadeAlunos,titulo,nome));
         }
         return new PageImpl<>(dadosRetorno,page,dadosRetorno.size());
     }
 
-    @GetMapping("atividades-alunos/a-fazer={id}")
+    @GetMapping("/atividades-alunos/a-fazer={id}")
     public Page<DadosRetornoAtividade>  listaAtividadesAlunoAFazer(@PathVariable Long id, Pageable page){
         List<AlunosProfessores> lista =alunoProfessorRepository.findByAluno(id);
 
@@ -89,7 +98,7 @@ public class RelacionamentosController {
 
         List<Atividade> atividadesAFazer = new ArrayList<>();
         for (Atividade atividade: atividades) {
-            boolean tem = respondidasRepository.findById(atividade.getId()).isPresent();
+            boolean tem = respondidasRepository.findByAlunoAndAtividade( id, atividade.getId()).isPresent();
             if(!tem) atividadesAFazer.add(atividade);
         }
 
@@ -97,9 +106,13 @@ public class RelacionamentosController {
     }
 
 
+    @PostMapping("/enviar-resposta")
+    @Transactional
+    public void responderAtividade(@RequestBody DadosCadastroAtiviRespon dados){
+        respondidasRepository.save(new AtividadeAlunos(dados, new Date()));
+    }
 
 
-    // relacionametos Professor Aluno.
 
     @GetMapping("/meus-alunos/professor={id}")
     public Page<DadosRetornoAluno> listarMeusAlunos(Pageable page, @PathVariable Long id){
